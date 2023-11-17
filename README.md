@@ -14,7 +14,7 @@ import AdaptiveGridLayout
 
 struct SampleView: View {
     var body: some View {
-        AdaptiveVGrid {
+        AdaptiveVerticalGrid {
             ForEach(0..<100) { _ in
                 Rectangle()
                     .frame(width: .random(in: 10..<120),
@@ -46,7 +46,7 @@ import AdaptiveGridLayout
 struct TagsView: View {
     var model = FoodModel()
     var body: some View {
-        AdaptiveVGrid(spacing: 6) {
+        AdaptiveVerticalGrid(spacing: 6) {
             ForEach(model.fruits) { fruit in
                 TagView(word: LocalizedStringKey(fruit.name))
             }
