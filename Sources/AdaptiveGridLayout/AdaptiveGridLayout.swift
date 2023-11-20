@@ -10,50 +10,61 @@ import SwiftUI
 
 public struct AdaptiveVerticalGrid: Layout {
     public let spacing: CGFloat
+    public let itemAnchor: UnitPoint
 
-    // in prep for work on rows with irregular vertical sized items, keep fixed for now
-    public let minItemWidth: CGFloat = .zero
-    public let itemAnchor: UnitPoint = .topLeading
-
-    public init(spacing: CGFloat = 6) {
+    public init(spacing: CGFloat = 10, itemAnchor: UnitPoint = .center) {
         self.spacing = spacing
+        self.itemAnchor = itemAnchor
     }
 
+    // NOTE: Trying to use protocol's `func spacing(subviews: Subviews, cache: inout ())` added unnecessary complexity
+    // use spacing in the sizing and placing
+
     public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        var width: CGFloat = minItemWidth
+        var width: CGFloat = .zero
         var height: CGFloat = .zero
         var currentRowWidth: CGFloat = .zero
+        var currentRowHeight: CGFloat = .zero
 
         for subview in subviews {
             let size = subview.sizeThatFits(proposal)
+            currentRowHeight = max(currentRowHeight, size.height)
             if currentRowWidth + size.width > proposal.width ?? .infinity {
                 // Move to next row
-                height += size.height + spacing
+                height += currentRowHeight // size.height
                 currentRowWidth = .zero
+                currentRowHeight = size.height // use this item height as initial for row
             }
-
-            currentRowWidth += max(size.width, minItemWidth) + spacing
+            currentRowWidth += size.width + spacing
             width = max(width, currentRowWidth)
         }
 
-        height += subviews.last?.sizeThatFits(proposal).height ?? .zero
-        return CGSize(width: width + spacing, height: height)
+        height += currentRowHeight + spacing/2
+        return CGSize(width: width, height: height)
     }
 
+
+    // TODO: Deal with items wider than the entire proposed width, it will double new row them currently
     public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         var currentX: CGFloat = .zero
         var currentY: CGFloat = .zero
+        var currentRowMaxY: CGFloat = .zero
 
         for subview in subviews {
             let size = subview.sizeThatFits(proposal)
-            if currentX + max(minItemWidth, size.width) > bounds.width {
+            currentRowMaxY = max(currentRowMaxY, size.height)
+            if currentX + size.width > bounds.width {
                 // move to next row
                 currentX = .zero
-                currentY += size.height + spacing
+                currentY += currentRowMaxY + spacing/2
+                currentRowMaxY = size.height
             }
 
-            subview.place(at: CGPoint(x: bounds.minX + currentX, y: bounds.minY + currentY), anchor: itemAnchor, proposal: proposal)
-            currentX += max(minItemWidth, size.width) + spacing
+            let rowProposal = ProposedViewSize(width: proposal.width, height: currentRowMaxY + spacing/2)
+            subview.place(at: CGPoint(x: bounds.minX + currentX, y: bounds.minY + currentY),
+                          anchor: .topLeading,
+                          proposal: rowProposal)
+            currentX += size.width + spacing
         }
     }
 }
