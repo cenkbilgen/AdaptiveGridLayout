@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: Vertical
 
-public struct AdaptiveVerticalGrid: Layout {
+public struct AdaptiveWidthVerticalGrid: Layout {
     public let spacing: CGFloat
     public let itemAnchor: UnitPoint
 
@@ -70,66 +70,38 @@ public struct AdaptiveVerticalGrid: Layout {
     }
 }
 
-// MARK: Horizontal
+public struct FixedWidthVerticalGrid: Layout {
+    let columns: Int
+    public let spacing: CGFloat = .zero
+    public let itemAnchor: UnitPoint = .center
 
-public struct AdaptiveHorizontalGrid: Layout {
-    public let spacing: CGFloat
-    public let itemAnchor: UnitPoint
-
-    public init(spacing: CGFloat = 10, itemAnchor: UnitPoint = .center) {
-        self.spacing = spacing
-        self.itemAnchor = itemAnchor
+    public init(columns: Int) {
+        self.columns = columns
     }
-
-    // NOTE: Trying to use protocol's `func spacing(subviews: Subviews, cache: inout ())` added unnecessary complexity
-    // use spacing in the sizing and placing
 
     public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        var width: CGFloat = .zero
-        var height: CGFloat = .zero
-        var currentRowWidth: CGFloat = .zero
-        var currentRowHeight: CGFloat = .zero
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(proposal)
-            currentRowHeight = max(currentRowHeight, size.height)
-            if currentRowWidth + size.width > proposal.width ?? .infinity {
-                // Move to next row
-                height += currentRowHeight // size.height
-                currentRowWidth = .zero
-                currentRowHeight = size.height // use this item height as initial for row
-            }
-            currentRowWidth += size.width + spacing
-            width = max(width, currentRowWidth)
+        var heights: [CGFloat] = Array(repeating: .zero, count: columns)
+        for (index, subview) in subviews.enumerated() {
+            let columnIndex = index.remainderReportingOverflow(dividingBy: columns).partialValue
+            heights[columnIndex] += subview.sizeThatFits(proposal).height
         }
-
-        height += currentRowHeight + spacing/2
-        return CGSize(width: width, height: height)
+        return CGSize(width: proposal.width ?? .zero, height: heights.max() ?? .zero)
     }
 
-
-    // TODO: Deal with items wider than the entire proposed width, it will double new row them currently
     public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         var currentX: CGFloat = .zero
-        var currentY: CGFloat = .zero
-        var currentRowMaxY: CGFloat = .zero
+        var currentHeights: [CGFloat] = Array(repeating: .zero, count: columns)
+        let columnWidth = bounds.width/CGFloat(columns)
 
-        for subview in subviews {
-            let size = subview.sizeThatFits(proposal)
-            currentRowMaxY = max(currentRowMaxY, size.height)
-            if currentX + size.width > bounds.width {
-                // move to next row
-                currentX = .zero
-                currentY += currentRowMaxY + spacing/2
-                currentRowMaxY = size.height
-            }
-
-            let rowProposal = ProposedViewSize(width: proposal.width, height: currentRowMaxY + spacing/2)
-            subview.place(at: CGPoint(x: bounds.minX + currentX, y: bounds.minY + currentY),
-                          anchor: .topLeading,
-                          proposal: rowProposal)
-            currentX += size.width + spacing
+        for (index, subview) in subviews.enumerated() {
+            let columnIndex = index.remainderReportingOverflow(dividingBy: columns).partialValue
+            let x = columnWidth * CGFloat(columnIndex)
+            let y = currentHeights[columnIndex]
+            subview.place(at: CGPoint(x: x, y: y), anchor: .topLeading, proposal: ProposedViewSize(width: columnWidth, height: nil))
+            currentHeights[columnIndex] += subview.sizeThatFits(proposal).height
         }
     }
 }
+
+
 
