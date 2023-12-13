@@ -8,7 +8,7 @@ Minimum target is `macOS 13` or `iOS 16` (for `Layout`).
 
 ## 1. Layout Example
 
-```
+```swift
 import SwiftUI
 import AdaptiveGridLayout
 
@@ -37,7 +37,7 @@ extension Color {
 
 ## 2. TagsView Example
 
-```
+```swift
 import SwiftUI
 import AdaptiveGridLayout
 
