@@ -70,13 +70,15 @@ public struct AdaptiveVGrid: Layout {
     }
 }
 
-public struct FixedWidthVerticalGrid: Layout {
-    let columns: Int
-    public let spacing: CGFloat = .zero
-    public let itemAnchor: UnitPoint = .center
+public struct FixedVGrid: Layout {
+    public let columns: Int
+    public let spacing: CGFloat
+    public let itemAnchor: UnitPoint
 
-    public init(columns: Int) {
+    public init(columns: Int, spacing: CGFloat = .zero, itemAnchor: UnitPoint = .center) {
         self.columns = columns
+        self.spacing = spacing
+        self.itemAnchor = itemAnchor
     }
 
     public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
@@ -95,6 +97,45 @@ public struct FixedWidthVerticalGrid: Layout {
 
         for (index, subview) in subviews.enumerated() {
             let columnIndex = index.remainderReportingOverflow(dividingBy: columns).partialValue
+            let x = columnWidth * CGFloat(columnIndex)
+            let y = currentHeights[columnIndex]
+            subview.place(at: CGPoint(x: x, y: y), anchor: .topLeading, proposal: ProposedViewSize(width: columnWidth, height: nil))
+            currentHeights[columnIndex] += subview.sizeThatFits(proposal).height
+        }
+    }
+}
+
+public struct FixedVGridBalanced: Layout {
+    let columns: Int
+    let spacing: CGFloat
+    let itemAnchor: UnitPoint
+
+    public init(columns: Int, spacing: CGFloat = .zero, itemAnchor: UnitPoint = .center) {
+        self.columns = columns
+        self.spacing = spacing
+        self.itemAnchor = itemAnchor
+    }
+
+    public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        var heights: [CGFloat] = Array(repeating: .zero, count: columns)
+        var nextIndex = 0
+        for (index, subview) in subviews.enumerated() {
+            let columnIndex = heights.enumerated().min { $0.element < $1.element }?.offset ?? nextIndex
+            nextIndex = (nextIndex + 1) % heights.count
+            heights[columnIndex] += subview.sizeThatFits(proposal).height
+        }
+        return CGSize(width: proposal.width ?? .zero, height: heights.max() ?? .zero)
+    }
+
+    public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var currentX: CGFloat = .zero
+        var currentHeights: [CGFloat] = Array(repeating: .zero, count: columns)
+        let columnWidth = bounds.width/CGFloat(columns)
+
+        var nextIndex = 0
+        for (index, subview) in subviews.enumerated() {
+            let columnIndex = currentHeights.enumerated().min { $0.element < $1.element }?.offset ?? nextIndex
+            nextIndex = (nextIndex + 1) % currentHeights.count
             let x = columnWidth * CGFloat(columnIndex)
             let y = currentHeights[columnIndex]
             subview.place(at: CGPoint(x: x, y: y), anchor: .topLeading, proposal: ProposedViewSize(width: columnWidth, height: nil))
