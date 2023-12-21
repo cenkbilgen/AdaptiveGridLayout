@@ -9,11 +9,11 @@ import SwiftUI
 
 // MARK: Vertical
 
-public struct AdaptiveWidthVerticalGrid: Layout {
+public struct AdaptiveVGrid: Layout {
     public let spacing: CGFloat
     public let itemAnchor: UnitPoint
 
-    public init(spacing: CGFloat = 10, itemAnchor: UnitPoint = .center) {
+    public init(spacing: CGFloat = 0, itemAnchor: UnitPoint = .center) {
         self.spacing = spacing
         self.itemAnchor = itemAnchor
     }
@@ -32,7 +32,7 @@ public struct AdaptiveWidthVerticalGrid: Layout {
             currentRowHeight = max(currentRowHeight, size.height)
             if currentRowWidth + size.width > proposal.width ?? .infinity {
                 // Move to next row
-                height += currentRowHeight // size.height
+                height += currentRowHeight + spacing/2 // size.height
                 currentRowWidth = .zero
                 currentRowHeight = size.height // use this item height as initial for row
             }
@@ -40,7 +40,7 @@ public struct AdaptiveWidthVerticalGrid: Layout {
             width = max(width, currentRowWidth)
         }
 
-        height += currentRowHeight + spacing/2
+        height += currentRowHeight
         return CGSize(width: width, height: height)
     }
 
