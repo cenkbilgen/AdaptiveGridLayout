@@ -13,27 +13,35 @@ import SwiftUI
 import AdaptiveGridLayout
 
 struct SampleView: View {
-    var body: some View {
-        AdaptiveVerticalGrid {
-            ForEach(0..<100) { _ in
-                Rectangle()
-                    .frame(width: .random(in: 10..<120),
-                           height: 30)
-                    .foregroundColor(.random)
-            }
-        }
-    }
-}
 
-extension Color {
-    static var random: Color {
-        Color(hue: .random(in: 0..<1.0), 
-              saturation: .random(in: 0.1..<0.8),
-              brightness:.random( in: 0.5..<0.9))
+    let itemHeight: CGFloat = 50
+
+    @State var items: [(width: CGFloat, color: Color)] = (0..<40).map { _ in
+        (CGFloat.random(in: 10..<120),
+         Color(hue: .random(in: 0..<1.0),
+               saturation: .random(in: 0.1..<0.8),
+               brightness:.random( in: 0.5..<0.9))
+        )
     }
+
+    var body: some View {
+        AdaptiveVGrid(spacing: 2) { // <------------
+
+            ForEach(items.indices, id: \.self) { index in
+                Rectangle()
+                    .fill(items[index].color)
+                    .frame(width: items[index].width, height: itemHeight)
+                    .overlay { Text(index, format: .number) }
+            }
+
+        }
+        .border(.blue)
+        .containerRelativeFrame(.vertical)
+    }
+
 }
 ```
-![Simulator Screenshot - iPhone 15 Pro - 2023-11-17 at 13 41 48](https://github.com/cenkbilgen/AdaptiveGridLayout/assets/6772018/636ee501-1df1-4066-bfe4-5d9cbe9fbbe0)
+<img width="613" alt="Screenshot 2023-12-31 at 5 21 32 PM" src="https://github.com/cenkbilgen/AdaptiveGridLayout/assets/6772018/56039db3-ea54-4b51-8ec1-672328957ac4">
 
 ## 2. TagsView Example
 
@@ -46,7 +54,7 @@ import AdaptiveGridLayout
 struct TagsView: View {
     var model = FoodModel()
     var body: some View {
-        AdaptiveVerticalGrid(spacing: 6) {
+        AdaptiveVGrid(spacing: 6) {
             ForEach(model.fruits) { fruit in
                 TagView(word: LocalizedStringKey(fruit.name))
             }
@@ -68,7 +76,6 @@ struct TagsView: View {
 
 // MARK: Model
 
-// real app would be Observable/ObservedObject and use orderedSet
 class FoodModel {
     var fruits: [Fruit] = ["Tangerine", "Honeydew", "Fig", "Zucchini", "Orange", "Cherry", "Papaya", "Dragon Fruit", "Dates", "Lemon", "Apple", "Nectarine", "Raspberry", "Banana"]
 
