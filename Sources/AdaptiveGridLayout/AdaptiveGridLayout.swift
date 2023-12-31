@@ -39,11 +39,12 @@ public struct AdaptiveVGrid: Layout {
             currentRowHeight = max(currentRowHeight, size.height)
             if currentRowWidth + size.width > proposal.width ?? .infinity {
                 // Move to next row
-                height += currentRowHeight + spacing/2 // size.height
+                height += currentRowHeight + spacing // size.height
                 currentRowWidth = .zero
                 currentRowHeight = size.height // use this item height as initial for row
             }
-            currentRowWidth += size.width + spacing
+            // don't add spacing if new row
+            currentRowWidth += size.width + (currentRowWidth.isZero ? .zero : spacing)
             width = max(width, currentRowWidth)
         }
 
@@ -64,7 +65,7 @@ public struct AdaptiveVGrid: Layout {
             if currentX + size.width > bounds.width {
                 // move to next row
                 currentX = .zero
-                currentY += currentRowMaxY + spacing/2
+                currentY += currentRowMaxY + spacing // MARKING
                 currentRowMaxY = size.height
             }
 
