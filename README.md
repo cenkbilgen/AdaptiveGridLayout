@@ -1,5 +1,9 @@
 # AdaptiveGridLayout
 
+[![Swift Package Manager compatible](https://img.shields.io/badge/SPM-compatible-4BC51D.svg?style=flat)](https://github.com/apple/swift-package-manager)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fcenkbilgen%2FAdaptiveGridLayout%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/cenkbilgen/AdaptiveGridLayout)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fcenkbilgen%2FAdaptiveGridLayout%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/cenkbilgen/AdaptiveGridLayout)
+
 A SwiftUI Package for arranging subviews in an width-adaptive grid pattern expanding vertically, such as for a set of Tags.
 
 At first, it seemed like the built-in `LazyVStack` could do it, but although it can make adaptive columns, that size is fixed for all rows. 
