@@ -45,7 +45,7 @@ struct SampleView: View {
 
 }
 ```
-<img width="613" alt="Screenshot 2023-12-31 at 5 21 32 PM" src="https://github.com/cenkbilgen/AdaptiveGridLayout/assets/6772018/56039db3-ea54-4b51-8ec1-672328957ac4">
+<img width="613" alt="Adaptive Layout Sample 1" src="https://github.com/cenkbilgen/AdaptiveGridLayout/assets/6772018/56039db3-ea54-4b51-8ec1-672328957ac4">
 
 ## 2. TagsView Example
 
@@ -92,4 +92,12 @@ class FoodModel {
     }
 }
 ```
-![Simulator Screenshot - iPhone 15 Pro - 2023-11-17 at 13 42 22](https://github.com/cenkbilgen/AdaptiveGridLayout/assets/6772018/44331ce3-5d18-4a5b-882c-5d81008aedb3)
+<img width="613" alt="Adaptive Layout Example 2" src="https://github.com/cenkbilgen/AdaptiveGridLayout/assets/6772018/78b7a7ce-6be3-4824-9e38-04fc51b5c95c">
+
+## Animation
+
+Elements handle their own animation. The easiest way to add some animation to adding and removing elements is with `matchedGeometry`. 
+For the sample above, add `.matchedGeometryEffect(id: fruit.id, in: namespace)` to each element then `.animation(.spring, value: model.fruits)`.
+
+![looping_output](https://github.com/cenkbilgen/AdaptiveGridLayout/assets/6772018/6af635e6-ee0a-43a4-9837-88bda5f1331f)
+
