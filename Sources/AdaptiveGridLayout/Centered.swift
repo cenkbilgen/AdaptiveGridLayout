@@ -28,7 +28,6 @@ public struct CenteredLayout: Layout {
     }
 
     public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var currentX: CGFloat = .zero
         var currentHeights: [CGFloat] = Array(repeating: .zero, count: columns)
         let columnWidth = bounds.width/CGFloat(columns)
 
