@@ -13,6 +13,9 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AdaptiveGridLayout"),
+            name: "AdaptiveGridLayout",
+            swiftSettings: [
+                .unsafeFlags(["-warnings-as-errors"], .when(configuration: .debug)),
+            ])
     ]
 )
